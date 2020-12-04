@@ -9,6 +9,7 @@ import {
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 import { UpdateItemDTO } from './dto/update-item.dto';
+import { User } from 'src/auth/user.entity';
 
 @Injectable()
 export class ItemsService {
@@ -27,8 +28,9 @@ export class ItemsService {
   async bidOnItem(
     id: number,
     bidItem: UpdateItemDTO,
+    user: User,
   ): Promise<Item | { action: boolean; message: string }> {
-    const result = await this.itemRepo.updateBid(id, bidItem);
+    const result = await this.itemRepo.updateBid(id, bidItem, user.username);
     if (result) {
       return result;
     } else {

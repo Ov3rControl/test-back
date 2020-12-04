@@ -22,14 +22,18 @@ export class ItemRepository extends Repository<Item> {
     return this.save({ ...updateItem, id: id });
   }
 
-  async updateBid(id: number, { bid }: UpdateItemDTO) {
+  async updateBid(id: number, { bid }: UpdateItemDTO, username: string) {
     const item = await this.findOne(id);
-
-    if (item.bid < bid) {
+    if (item.bid < bid && item.highestBidder !== username) {
       item.bidHistory
         ? (item.bidHistory = [...item.bidHistory, String(bid)])
         : (item.bidHistory = [String(bid)]);
-      return this.save({ bid, id: id, bidHistory: item.bidHistory });
+      return this.save({
+        bid,
+        id: id,
+        bidHistory: item.bidHistory,
+        highestBidder: username,
+      });
     }
     return false;
   }

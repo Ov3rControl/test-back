@@ -6,7 +6,7 @@ import { UserRoles } from './user.entity';
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector, public jwtService: JwtService) {}
-
+  //*TODO* Refactor to take role from request object directly
   canActivate(context: ExecutionContext): boolean {
     const roles = this.reflector.get<UserRoles[]>(
       'roles',

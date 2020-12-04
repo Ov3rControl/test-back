@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { GetUser } from 'src/auth/get-user.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
 import { UserRoles } from 'src/auth/user.entity';
@@ -48,6 +49,7 @@ export class ItemsController {
   }
 
   @Get('/:id')
+  @Roles(UserRoles.Admin, UserRoles.User)
   getItemById(@Param('id', ParseIntPipe) id: number): Promise<Item> {
     return this.itemsService.getItemById(id);
   }
@@ -70,9 +72,10 @@ export class ItemsController {
   @Patch('/:id/bid')
   @Roles(UserRoles.Admin, UserRoles.User)
   bidOnItem(
+    @GetUser() user: any,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateItem: UpdateItemDTO,
   ): Promise<Item | { action: boolean; message: string }> {
-    return this.itemsService.bidOnItem(id, updateItem);
+    return this.itemsService.bidOnItem(id, updateItem, user);
   }
 }

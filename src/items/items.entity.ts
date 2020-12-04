@@ -36,6 +36,9 @@ export class Item extends BaseEntity {
   @Column({ type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP', nullable: true })
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  highestBidder: string;
+
   @ManyToOne(
     type => User,
     user => user.items,
