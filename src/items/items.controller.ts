@@ -8,9 +8,11 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { Pagination } from 'nestjs-typeorm-paginate';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
@@ -18,6 +20,7 @@ import { Item } from './items.entity';
 import { ItemsService } from './items.service';
 
 @Controller('items')
+@UseGuards(AuthGuard())
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
