@@ -5,7 +5,7 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { EntityRepository, Repository } from 'typeorm';
 import { AuthCredentialsDTO } from './dto/auth-credentials.dto';
-import { User } from './user.entity';
+import { User, UserRoles } from './user.entity';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
@@ -20,6 +20,7 @@ export class UserRepository extends Repository<User> {
       await user.save();
     } catch (error) {
       if (error.code === '23505') {
+        //TypeORM username duplicate error code
         throw new ConflictException('Username already exists');
       } else {
         throw new InternalServerErrorException();
@@ -29,12 +30,12 @@ export class UserRepository extends Repository<User> {
 
   async validateUserPassword(
     authCredentialsDTO: AuthCredentialsDTO,
-  ): Promise<string> {
+  ): Promise<{ username: string; role: UserRoles }> {
     const { username, password } = authCredentialsDTO;
     const user = await this.findOne({ username });
 
     if (user && (await user.validatePassword(password))) {
-      return user.username;
+      return { username: user.username, role: user.role };
     } else {
       return null;
     }

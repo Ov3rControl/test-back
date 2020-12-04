@@ -9,6 +9,10 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { Item } from 'src/items/items.entity';
 
+export enum UserRoles {
+  Admin,
+  User,
+}
 @Entity()
 @Unique(['username'])
 export class User extends BaseEntity {
@@ -23,6 +27,9 @@ export class User extends BaseEntity {
 
   @Column()
   salt: string;
+
+  @Column({ default: UserRoles.User })
+  role: UserRoles;
 
   @OneToMany(
     type => Item,

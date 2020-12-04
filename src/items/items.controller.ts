@@ -14,23 +14,27 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Pagination } from 'nestjs-typeorm-paginate';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/roles.gaurd';
+import { UserRoles } from 'src/auth/user.entity';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { Item } from './items.entity';
 import { ItemsService } from './items.service';
-
 @Controller('items')
-@UseGuards(AuthGuard())
+@UseGuards(AuthGuard(), RolesGuard)
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Post()
   @UsePipes(ValidationPipe)
+  @Roles(UserRoles.Admin)
   createItem(@Body() createItemDto: CreateItemDTO): Promise<Item> {
     return this.itemsService.createItem(createItemDto);
   }
 
   @Get()
+  @Roles(UserRoles.Admin, UserRoles.User)
   async index(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
@@ -49,11 +53,13 @@ export class ItemsController {
   }
 
   @Delete('/:id')
+  @Roles(UserRoles.Admin)
   deleteItemById(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.itemsService.deleteItem(id);
   }
 
   @Patch('/:id')
+  @Roles(UserRoles.Admin)
   updateItem(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateItem: UpdateItemDTO,
@@ -62,6 +68,7 @@ export class ItemsController {
   }
 
   @Patch('/:id/bid')
+  @Roles(UserRoles.Admin, UserRoles.User)
   bidOnItem(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateItem: UpdateItemDTO,
