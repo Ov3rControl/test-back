@@ -74,7 +74,6 @@ export class ItemsService {
     const closedItems = await this.itemRepo.getAllExpiredItems();
     closedItems.forEach(item => {
       //*TODO* email service function
-
       console.log(item.users, 'send emails to these users');
       // this.itemRepo.markItemAsClosed(item.id);
     });
