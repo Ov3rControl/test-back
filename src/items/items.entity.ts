@@ -3,9 +3,21 @@ import {
   BaseEntity,
   Column,
   Entity,
-  ManyToOne,
+  JoinTable,
+  ManyToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
+export enum UserRoles {
+  Admin,
+  User,
+}
+
+export enum ItemStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  CLOSED = 'CLOSED',
+}
 
 @Entity()
 export class Item extends BaseEntity {
@@ -39,10 +51,10 @@ export class Item extends BaseEntity {
   @Column({ nullable: true })
   highestBidder: string;
 
-  @ManyToOne(
-    type => User,
-    user => user.items,
-    { eager: false },
-  )
-  user: User;
+  @ManyToMany(() => User)
+  @JoinTable()
+  users: User[];
+
+  @Column({ default: ItemStatus.OPEN })
+  status: ItemStatus;
 }

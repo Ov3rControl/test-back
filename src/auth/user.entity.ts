@@ -2,7 +2,7 @@ import {
   BaseEntity,
   Column,
   Entity,
-  OneToMany,
+  ManyToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
@@ -31,10 +31,9 @@ export class User extends BaseEntity {
   @Column({ default: UserRoles.User })
   role: UserRoles;
 
-  @OneToMany(
+  @ManyToMany(
     type => Item,
-    item => item.user,
-    { eager: true },
+    item => item.users,
   )
   items: Item[];
 

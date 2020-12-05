@@ -30,7 +30,7 @@ export class ItemsService {
     bidItem: UpdateItemDTO,
     user: User,
   ): Promise<Item | { action: boolean; message: string }> {
-    const result = await this.itemRepo.updateBid(id, bidItem, user.username);
+    const result = await this.itemRepo.updateBid(id, bidItem, user);
     if (result) {
       return result;
     } else {
