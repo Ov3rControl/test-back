@@ -1,5 +1,6 @@
 import { User } from 'src/auth/user.entity';
 import { currentUnixTime } from 'src/helper/currentUnixTime';
+import { ResMessage } from 'src/helper/responseMessage';
 import { EntityRepository, LessThan, Repository } from 'typeorm';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
@@ -31,6 +32,11 @@ export class ItemRepository extends Repository<Item> {
     const currItemBidders = item.users;
     const { username } = user;
 
+    if (item.status === ItemStatus.CLOSED)
+      return ResMessage(false, 'Bidding on this item is closed'); // close betting on this item if it's expired
+    if (item.highestBidder === username)
+      return ResMessage(false, 'You are the current highest bidder');
+
     if (item.bid < bid && item.highestBidder !== username) {
       item.bidHistory
         ? (item.bidHistory = [...item.bidHistory, String(bid)])
@@ -48,7 +54,10 @@ export class ItemRepository extends Repository<Item> {
         users: [...item.users, user],
       });
     }
-    return false;
+    return ResMessage(
+      false,
+      "Can't bind on item with an amount lower than the current",
+    );
   }
 
   async getAllExpiredItems(): Promise<Item[]> {
