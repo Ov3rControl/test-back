@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
+import { ScheduleModule } from '@nestjs/schedule/dist/schedule.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/roles.gaurd';
@@ -18,6 +19,7 @@ import { ItemsModule } from './items/items.module';
         expiresIn: 3600,
       },
     }),
+    ScheduleModule.forRoot(),
   ],
   controllers: [],
   providers: [

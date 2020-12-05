@@ -1,8 +1,9 @@
 import { User } from 'src/auth/user.entity';
-import { EntityRepository, Repository } from 'typeorm';
+import { currentUnixTime } from 'src/helper/currentUnixTime';
+import { EntityRepository, LessThan, Repository } from 'typeorm';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
-import { Item } from './items.entity';
+import { Item, ItemStatus } from './items.entity';
 
 @EntityRepository(Item)
 export class ItemRepository extends Repository<Item> {
@@ -27,13 +28,18 @@ export class ItemRepository extends Repository<Item> {
     const item = await this.findOne(id, {
       relations: ['users'],
     });
+    const currItemBidders = item.users;
     const { username } = user;
 
     if (item.bid < bid && item.highestBidder !== username) {
       item.bidHistory
         ? (item.bidHistory = [...item.bidHistory, String(bid)])
         : (item.bidHistory = [String(bid)]);
-
+      //*TODO* email service function
+      console.log(
+        currItemBidders,
+        'Send Emails to current bidders on that item',
+      );
       return this.save({
         bid,
         id: id,
@@ -43,5 +49,20 @@ export class ItemRepository extends Repository<Item> {
       });
     }
     return false;
+  }
+
+  async getAllExpiredItems(): Promise<Item[]> {
+    return this.find({
+      relations: ['users'],
+      where: {
+        closeDate: LessThan(currentUnixTime),
+        status: ItemStatus.OPEN,
+      },
+      select: ['id', 'highestBidder', 'name'],
+    });
+  }
+
+  async markItemAsClosed(id: number) {
+    this.save({ id, status: ItemStatus.CLOSED });
   }
 }

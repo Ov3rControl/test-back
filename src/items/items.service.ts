@@ -8,6 +8,8 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
+import { Cron } from '@nestjs/schedule/dist/decorators/cron.decorator';
+import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { User } from 'src/auth/user.entity';
 
@@ -17,28 +19,15 @@ export class ItemsService {
     @InjectRepository(ItemRepository) private itemRepo: ItemRepository,
   ) {}
 
+  onModuleInit() {
+    this.doActionsWhenItemsCloseDateExpire();
+  }
   async paginate(options: IPaginationOptions): Promise<Pagination<Item>> {
     return paginate<Item>(this.itemRepo, options);
   }
 
   async createItem(createItemDto: CreateItemDTO): Promise<Item> {
     return this.itemRepo.createItem(createItemDto);
-  }
-
-  async bidOnItem(
-    id: number,
-    bidItem: UpdateItemDTO,
-    user: User,
-  ): Promise<Item | { action: boolean; message: string }> {
-    const result = await this.itemRepo.updateBid(id, bidItem, user);
-    if (result) {
-      return result;
-    } else {
-      return {
-        action: false,
-        message: "Can't bid with amount lower than the current",
-      };
-    }
   }
 
   async deleteItem(id: number): Promise<any> {
@@ -62,5 +51,32 @@ export class ItemsService {
 
   async updateItem(id: number, updateItem: UpdateItemDTO): Promise<Item> {
     return this.itemRepo.updateItem(id, updateItem);
+  }
+
+  async bidOnItem(
+    id: number,
+    bidItem: UpdateItemDTO,
+    user: User,
+  ): Promise<Item | { action: boolean; message: string }> {
+    const result = await this.itemRepo.updateBid(id, bidItem, user);
+    if (result) {
+      return result;
+    } else {
+      return {
+        action: false,
+        message: "Can't bid with amount lower than the current",
+      };
+    }
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async doActionsWhenItemsCloseDateExpire() {
+    const closedItems = await this.itemRepo.getAllExpiredItems();
+    closedItems.forEach(item => {
+      //*TODO* email service function
+
+      console.log(item.users, 'send emails to these users');
+      // this.itemRepo.markItemAsClosed(item.id);
+    });
   }
 }
