@@ -16,7 +16,7 @@ import { ItemsModule } from './items/items.module';
     JwtModule.register({
       secret: "It'sSupposedToBeSecret",
       signOptions: {
-        expiresIn: 3600,
+        expiresIn: 360000,
       },
     }),
     ScheduleModule.forRoot(),

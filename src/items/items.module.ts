@@ -14,7 +14,7 @@ import { UserRepository } from 'src/auth/user.repository';
     JwtModule.register({
       secret: "It'sSupposedToBeSecret",
       signOptions: {
-        expiresIn: 3600,
+        expiresIn: 360000,
       },
     }),
     AuthModule,
