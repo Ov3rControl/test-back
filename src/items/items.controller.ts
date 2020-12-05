@@ -17,7 +17,7 @@ import { Pagination } from 'nestjs-typeorm-paginate';
 import { GetUser } from 'src/auth/get-user.decorator';
 import { Roles } from 'src/auth/roles.decorator';
 import { RolesGuard } from 'src/auth/roles.gaurd';
-import { UserRoles } from 'src/auth/user.entity';
+import { User, UserRoles } from 'src/auth/user.entity';
 import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { Item } from './items.entity';
@@ -72,10 +72,16 @@ export class ItemsController {
   @Patch('/:id/bid')
   @Roles(UserRoles.Admin, UserRoles.User)
   bidOnItem(
-    @GetUser() user: any,
+    @GetUser() user: User,
     @Param('id', ParseIntPipe) id: number,
     @Body() updateItem: UpdateItemDTO,
   ): Promise<Item | { action: boolean; message: string }> {
     return this.itemsService.bidOnItem(id, updateItem, user);
+  }
+
+  @Get('/user/myitems')
+  @Roles(UserRoles.User)
+  getUserItems(@GetUser() user: User): Promise<User> {
+    return this.itemsService.getUserItems(user.id);
   }
 }

@@ -32,7 +32,7 @@ export class User extends BaseEntity {
   role: UserRoles;
 
   @ManyToMany(
-    type => Item,
+    () => Item,
     item => item.users,
   )
   items: Item[];

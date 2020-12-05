@@ -12,11 +12,13 @@ import { Cron } from '@nestjs/schedule/dist/decorators/cron.decorator';
 import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum';
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { User } from 'src/auth/user.entity';
+import { UserRepository } from 'src/auth/user.repository';
 
 @Injectable()
 export class ItemsService {
   constructor(
     @InjectRepository(ItemRepository) private itemRepo: ItemRepository,
+    @InjectRepository(UserRepository) private userRepo: UserRepository,
   ) {}
 
   onModuleInit() {
@@ -58,15 +60,7 @@ export class ItemsService {
     bidItem: UpdateItemDTO,
     user: User,
   ): Promise<Item | { action: boolean; message: string }> {
-    const result = await this.itemRepo.updateBid(id, bidItem, user);
-    if (result) {
-      return result;
-    } else {
-      return {
-        action: false,
-        message: "Can't bid with amount lower than the current",
-      };
-    }
+    return await this.itemRepo.updateBid(id, bidItem, user);
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
@@ -76,6 +70,13 @@ export class ItemsService {
       //*TODO* email service function
       console.log(item.users, 'send emails to these users');
       // this.itemRepo.markItemAsClosed(item.id);
+    });
+  }
+
+  async getUserItems(id: number) {
+    return await this.userRepo.findOne(id, {
+      relations: ['items'],
+      select: ['username', 'id'],
     });
   }
 }

@@ -51,7 +51,10 @@ export class Item extends BaseEntity {
   @Column({ nullable: true })
   highestBidder: string;
 
-  @ManyToMany(() => User)
+  @ManyToMany(
+    () => User,
+    user => user.items,
+  )
   @JoinTable()
   users: User[];
 

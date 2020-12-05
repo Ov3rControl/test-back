@@ -5,10 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ItemRepository } from './items.repository';
 import { AuthModule } from 'src/auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { UserRepository } from 'src/auth/user.repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ItemRepository]),
+    TypeOrmModule.forFeature([UserRepository]),
     JwtModule.register({
       secret: "It'sSupposedToBeSecret",
       signOptions: {
