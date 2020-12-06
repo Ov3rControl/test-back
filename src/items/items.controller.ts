@@ -25,7 +25,9 @@ import { CreateItemDTO } from './dto/create-item.dto';
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { Item } from './items.entity';
 import { ItemsService } from './items.service';
+import { ApiBearerAuth } from '@nestjs/swagger';
 @Controller('items')
+@ApiBearerAuth()
 export class ItemsController implements OnModuleInit {
   constructor(private readonly itemsService: ItemsService) {}
   private sse: SseStream;
