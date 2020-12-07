@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, MaxLength, MinLength } from 'class-validator';
+import { UserRoles } from '../user.entity';
 
 export class AuthCredentialsDTO {
   @ApiProperty()
@@ -13,4 +14,6 @@ export class AuthCredentialsDTO {
   @MinLength(8)
   @MaxLength(30) // To Prevent DDOS Attacks using hashing computation power
   password: string;
+
+  role?: UserRoles;
 }
