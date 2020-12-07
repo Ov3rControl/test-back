@@ -62,29 +62,31 @@ export class ItemsService {
     bidItem: UpdateItemDTO,
     user: User,
   ): Promise<Item | { action: boolean; message: string }> {
-    return await this.itemRepo.updateBid(id, bidItem, user);
+    return await this.itemRepo.updateBid(id, bidItem, user, this.mailerService);
   }
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async doActionsWhenItemsCloseDateExpire() {
-
     const closedItems = await this.itemRepo.getAllExpiredItems();
     closedItems.forEach(item => {
       //*TODO* email service function
-      item.users.forEach((user) => {
-        const email = user.username + "@scopic.com"
-        this
-        .mailerService
-        .sendMail({
-          to: email, 
-          from: 'ov3rcontrol@hotmail.com',
-          subject: `Bidding on ${item.name}`, 
-          text: `Bidding Winner ${item.highestBidder}`, 
-          html: `<b>Hello ${user.username}</b>`, 
-        })
-        .then((res) => {console.log(res)})
-        .catch((err) => {console.log(err)});
-      })
+      item.users.forEach(user => {
+        const email = user.username + '@scopic.com';
+        this.mailerService
+          .sendMail({
+            to: email,
+            from: 'ov3rcontrol@hotmail.com',
+            subject: `Bidding on ${item.name}`,
+            text: `Bidding Winner ${item.highestBidder}`,
+            html: `<b>Hello ${user.username}</b>`,
+          })
+          .then(res => {
+            console.log(res);
+          })
+          .catch(err => {
+            console.log(err);
+          });
+      });
       this.itemRepo.markItemAsClosed(item.id);
     });
   }
