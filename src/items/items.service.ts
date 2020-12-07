@@ -13,10 +13,12 @@ import { CronExpression } from '@nestjs/schedule/dist/enums/cron-expression.enum
 import { UpdateItemDTO } from './dto/update-item.dto';
 import { User } from 'src/auth/user.entity';
 import { UserRepository } from 'src/auth/user.repository';
+import { MailerService } from '@nestjs-modules/mailer/dist/mailer.service';
 
 @Injectable()
 export class ItemsService {
   constructor(
+    private readonly mailerService: MailerService,
     @InjectRepository(ItemRepository) private itemRepo: ItemRepository,
     @InjectRepository(UserRepository) private userRepo: UserRepository,
   ) {}
@@ -65,10 +67,24 @@ export class ItemsService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async doActionsWhenItemsCloseDateExpire() {
+
     const closedItems = await this.itemRepo.getAllExpiredItems();
     closedItems.forEach(item => {
       //*TODO* email service function
-      console.log(item.users, 'send emails to these users');
+      item.users.forEach((user) => {
+        const email = user.username + "@scopic.com"
+        this
+        .mailerService
+        .sendMail({
+          to: email, 
+          from: 'ov3rcontrol@hotmail.com',
+          subject: `Bidding on ${item.name}`, 
+          text: `Bidding Winner ${item.highestBidder}`, 
+          html: `<b>Hello ${user.username}</b>`, 
+        })
+        .then((res) => {console.log(res)})
+        .catch((err) => {console.log(err)});
+      })
       this.itemRepo.markItemAsClosed(item.id);
     });
   }

@@ -9,8 +9,7 @@ import { UserRepository } from 'src/auth/user.repository';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ItemRepository]),
-    TypeOrmModule.forFeature([UserRepository]),
+    TypeOrmModule.forFeature([ItemRepository, UserRepository]),
     JwtModule.register({
       secret: "It'sSupposedToBeSecret",
       signOptions: {

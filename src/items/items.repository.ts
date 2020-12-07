@@ -1,3 +1,4 @@
+import { MailerService } from '@nestjs-modules/mailer/dist';
 import { User } from 'src/auth/user.entity';
 import { currentUnixTime } from 'src/helper/currentUnixTime';
 import { ResMessage } from 'src/helper/responseMessage';
@@ -8,6 +9,9 @@ import { Item, ItemStatus } from './items.entity';
 
 @EntityRepository(Item)
 export class ItemRepository extends Repository<Item> {
+  constructor(private readonly mailerService: MailerService) {
+    super();
+  }
   async createItem(createItemDto: CreateItemDTO) {
     const { name, description, closeDate, imageUrl } = createItemDto;
 
@@ -46,6 +50,23 @@ export class ItemRepository extends Repository<Item> {
         currItemBidders,
         'Send Emails to current bidders on that item',
       );
+      currItemBidders.forEach((user) => {
+        this.mailerService
+        .sendMail({
+          to:  user.username+ "@scopic.com",
+          from: 'ov3rcontrol@hotmail.com',
+          subject: `A New bid on ${item.name}`,
+          text: `Current Highest Bidder: ${item.highestBidder}`,
+          html: `<b>Hello ${user.username}</b>`,
+        })
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        });
+      })
+
       return this.save({
         bid,
         id: id,

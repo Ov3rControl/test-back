@@ -1,3 +1,4 @@
+import { MailerModule } from '@nestjs-modules/mailer/dist/mailer.module';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
@@ -7,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { RolesGuard } from './auth/roles.gaurd';
 import { typeOrmConfig } from './config/typeorm.config';
 import { ItemsModule } from './items/items.module';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 
 @Module({
   imports: [
@@ -20,7 +22,26 @@ import { ItemsModule } from './items/items.module';
       },
     }),
     ScheduleModule.forRoot(),
+    MailerModule.forRoot({
+      transport: {
+        host: "smtp.mailtrap.io",
+        port: "2525",
+        tls: {
+          servername: "smtp.mailtrap.io",
+        },
+        secure: false, 
+        auth: {
+          user: "87868887e23db4",
+          pass: "d0e69aae59aea5",
+        },
+      },
+      template: {
+        dir: "./templates",
+        adapter: new HandlebarsAdapter(),
+      },
+    }),
   ],
+
   controllers: [],
   providers: [
     {
